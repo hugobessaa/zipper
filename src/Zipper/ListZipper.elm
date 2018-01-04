@@ -7,6 +7,9 @@ type ListZipper a
     = ListZipper (List a) a (List a)
 
 
+{-| Creates a `ListZipper` focussed on the first element of a singleton list.
+-}
+singleton : a -> ListZipper a
 singleton a =
     ListZipper [] a []
 
@@ -15,14 +18,23 @@ singleton a =
 -- ACCESSORS
 
 
+{-| Returns all elements before the element `ListZipper` is focussed on
+-}
+before : ListZipper a -> List a
 before (ListZipper bfr _ _) =
     bfr
 
 
+{-| Returns the element `ListZipper` is focussed on
+-}
+current : ListZipper a -> a
 current (ListZipper _ curr _) =
     curr
 
 
+{-| Returns all elements after the element `ListZipper` is focussed on
+-}
+after : ListZipper a -> List a
 after (ListZipper _ _ aft) =
     aft
 
@@ -31,8 +43,11 @@ after (ListZipper _ _ aft) =
 -- LIST
 
 
-fromList l =
-    case ( List.head l, List.tail l ) of
+{-| May construct a `ListZipper a` from a `List a`
+-}
+fromList : List a -> Maybe (ListZipper a)
+fromList list =
+    case ( List.head list, List.tail list ) of
         ( Just curr, Just after ) ->
             Just <| ListZipper [] curr after
 
@@ -43,23 +58,30 @@ fromList l =
             Nothing
 
 
+{-| Returns all elements inside the `ListZipper`
+-}
+toList : ListZipper a -> List a
 toList (ListZipper bfr curr aft) =
     bfr ++ [ curr ] ++ aft
 
 
 
 -- MAPPING
--- map
 
 
-map mapFn =
-    mapBefore mapFn >> mapCurrent mapFn >> mapAfter mapFn
+{-| Maps a function over every element of the `ListZipper`
+-}
+map : (a -> b) -> ListZipper a -> ListZipper b
+map mapFn (ListZipper bfr curr aft) =
+    ListZipper
+        (List.map mapFn bfr)
+        (mapFn curr)
+        (List.map mapFn aft)
 
 
-
--- mapBefore
-
-
+{-| Maps a function over every element before the element `ListZipper` is focussed on
+-}
+mapBefore : (a -> a) -> ListZipper a -> ListZipper a
 mapBefore mapFn (ListZipper bfr curr aft) =
     ListZipper
         (List.map mapFn bfr)
@@ -67,10 +89,9 @@ mapBefore mapFn (ListZipper bfr curr aft) =
         aft
 
 
-
--- mapCurrent
-
-
+{-| Maps a function the element `ListZipper`is focussed on
+-}
+mapCurrent : (a -> a) -> ListZipper a -> ListZipper a
 mapCurrent mapFn (ListZipper bfr curr aft) =
     ListZipper
         bfr
@@ -78,10 +99,9 @@ mapCurrent mapFn (ListZipper bfr curr aft) =
         aft
 
 
-
--- mapAfter
-
-
+{-| Maps a function over every element after the element `ListZipper` is focussed on
+-}
+mapAfter : (a -> a) -> ListZipper a -> ListZipper a
 mapAfter mapFn (ListZipper bfr curr aft) =
     ListZipper
         bfr
@@ -92,9 +112,11 @@ mapAfter mapFn (ListZipper bfr curr aft) =
 
 -- mapIndexed
 -- MOVING AROUND
--- first
 
 
+{-| Focus on the first element of the `ListZipper`
+-}
+first : ListZipper a -> ListZipper a
 first (ListZipper bfr curr aft) =
     if bfr == [] then
         ListZipper bfr curr aft
@@ -105,10 +127,9 @@ first (ListZipper bfr curr aft) =
             (List.drop 1 bfr ++ [ curr ] ++ aft)
 
 
-
--- previous
-
-
+{-| May focus on the previous element of the `ListZipper`. Returns `Nothing` if there is no previous element
+-}
+previous : ListZipper a -> Maybe (ListZipper a)
 previous (ListZipper bfr curr aft) =
     let
         ( b, c ) =
@@ -128,10 +149,9 @@ previous (ListZipper bfr curr aft) =
         (Just (curr :: aft))
 
 
-
--- next
-
-
+{-| May focus on the next element of the `ListZipper`. Returns `Nothing` if there is no next element
+-}
+next : ListZipper a -> Maybe (ListZipper a)
 next (ListZipper bfr curr aft) =
     Maybe.map3
         ListZipper
@@ -140,10 +160,9 @@ next (ListZipper bfr curr aft) =
         (List.tail aft)
 
 
-
--- last
-
-
+{-| Focus on the last element of the `ListZipper`
+-}
+last : ListZipper a -> ListZipper a
 last (ListZipper bfr curr aft) =
     if aft == [] then
         ListZipper bfr curr aft
@@ -157,10 +176,9 @@ last (ListZipper bfr curr aft) =
             []
 
 
-
--- find
-
-
+{-| Returns a `ListZipper` focussed on the first element for which the predicate returns `True`
+-}
+find : (a -> Bool) -> ListZipper a -> Maybe (ListZipper a)
 find findFn zipper =
     let
         recur =
