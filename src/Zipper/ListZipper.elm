@@ -2,6 +2,8 @@ module Zipper.ListZipper exposing (..)
 
 {-| A zipper for `List`
 
+Heavily inspired by <http://package.elm-lang.org/packages/wernerdegroot/listzipper/3.0.0/List-Zipper>.
+
 The `ListZipper` type
 @docs ListZipper
 
