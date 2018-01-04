@@ -52,17 +52,44 @@ toList (ListZipper bfr curr aft) =
 -- map
 
 
-map mapFn (ListZipper bfr curr aft) =
-    ListZipper
-        (List.map mapFn bfr)
-        (mapFn curr)
-        (List.map mapFn aft)
+map mapFn =
+    mapBefore mapFn >> mapCurrent mapFn >> mapAfter mapFn
 
 
 
 -- mapBefore
+
+
+mapBefore mapFn (ListZipper bfr curr aft) =
+    ListZipper
+        (List.map mapFn bfr)
+        curr
+        aft
+
+
+
 -- mapCurrent
+
+
+mapCurrent mapFn (ListZipper bfr curr aft) =
+    ListZipper
+        bfr
+        (mapFn curr)
+        aft
+
+
+
 -- mapAfter
+
+
+mapAfter mapFn (ListZipper bfr curr aft) =
+    ListZipper
+        bfr
+        curr
+        (List.map mapFn aft)
+
+
+
 -- mapIndexed
 -- MOVING AROUND
 -- first
