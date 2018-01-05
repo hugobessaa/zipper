@@ -23,6 +23,11 @@ import Zipper.ListZipper
         )
 
 
+expectJustEqual : a -> Maybe a -> Expect.Expectation
+expectJustEqual a =
+    Expect.equal (Just a)
+
+
 suite : Test
 suite =
     describe "ListZipper tests"
@@ -83,56 +88,21 @@ suite =
                         |> Expect.equal [ 2, 3, 4, 5, 6 ]
             ]
         , describe "mapBefore"
-            [ test "maps no item if pointer is the first element" <|
-                \_ ->
-                    fromList [ 1, 2, 3, 4, 5 ]
-                        |> Maybe.withDefault (singleton 1)
-                        |> mapBefore ((+) 1)
-                        |> toList
-                        |> Expect.equal [ 1, 2, 3, 4, 5 ]
-            , test "maps items before the pointer if pointer is in the middle" <|
-                \_ ->
-                    fromList [ 1, 2, 3, 4, 5 ]
-                        |> Maybe.andThen next
-                        |> Maybe.andThen next
-                        |> Maybe.withDefault (singleton 1)
-                        |> mapBefore ((+) 1)
-                        |> toList
-                        |> Expect.equal [ 2, 3, 3, 4, 5 ]
-            , test "maps all items before the pointer if pointer is in the last element" <|
+            [ test "maps items before" <|
                 \_ ->
                     fromList [ 1, 2, 3, 4, 5 ]
                         |> Maybe.map last
-                        |> Maybe.withDefault (singleton 1)
-                        |> mapBefore ((+) 1)
-                        |> toList
-                        |> Expect.equal [ 2, 3, 4, 5, 5 ]
+                        |> Maybe.map (mapBefore (List.filter ((==) 2)))
+                        |> Maybe.map toList
+                        |> expectJustEqual [ 2, 5 ]
             ]
         , describe "mapAfter"
-            [ test "maps all items after the pointer if pointer is in the first element" <|
+            [ test "maps items after" <|
                 \_ ->
                     fromList [ 1, 2, 3, 4, 5 ]
-                        |> Maybe.withDefault (singleton 1)
-                        |> mapAfter ((+) 1)
-                        |> toList
-                        |> Expect.equal [ 1, 3, 4, 5, 6 ]
-            , test "maps items after the pointer if pointer is in the middle" <|
-                \_ ->
-                    fromList [ 1, 2, 3, 4, 5 ]
-                        |> Maybe.andThen next
-                        |> Maybe.andThen next
-                        |> Maybe.withDefault (singleton 1)
-                        |> mapAfter ((+) 1)
-                        |> toList
-                        |> Expect.equal [ 1, 2, 3, 5, 6 ]
-            , test "maps no item if pointer is the last element" <|
-                \_ ->
-                    fromList [ 1, 2, 3, 4, 5 ]
-                        |> Maybe.map last
-                        |> Maybe.withDefault (singleton 1)
-                        |> mapAfter ((+) 1)
-                        |> toList
-                        |> Expect.equal [ 1, 2, 3, 4, 5 ]
+                        |> Maybe.map (mapAfter (List.filter ((==) 2)))
+                        |> Maybe.map toList
+                        |> expectJustEqual [ 1, 2 ]
             ]
         , describe "mapCurrent"
             [ test "maps the current element" <|
@@ -144,24 +114,6 @@ suite =
                         |> mapCurrent ((+) 1)
                         |> toList
                         |> Expect.equal [ 1, 2, 4, 4, 5 ]
-            , test "maps items before the pointer if pointer is in the middle" <|
-                \_ ->
-                    fromList [ 1, 2, 3, 4, 5 ]
-                        |> Maybe.andThen next
-                        |> Maybe.andThen next
-                        |> Maybe.andThen next
-                        |> Maybe.withDefault (singleton 1)
-                        |> mapBefore ((+) 1)
-                        |> toList
-                        |> Expect.equal [ 2, 3, 4, 4, 5 ]
-            , test "maps all items before the pointer if pointer is in the last element" <|
-                \_ ->
-                    fromList [ 1, 2, 3, 4, 5 ]
-                        |> Maybe.map last
-                        |> Maybe.withDefault (singleton 1)
-                        |> mapBefore ((+) 1)
-                        |> toList
-                        |> Expect.equal [ 2, 3, 4, 5, 5 ]
             ]
         , describe "next"
             [ test "returns a Just ListZipper with the next item selected" <|

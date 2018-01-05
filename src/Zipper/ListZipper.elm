@@ -102,12 +102,12 @@ map mapFn (ListZipper bfr curr aft) =
         (List.map mapFn aft)
 
 
-{-| Maps a function over every element before the element `ListZipper` is focussed on.
+{-| Applies a function all elements before the element `ListZipper` is focussed on.
 -}
-mapBefore : (a -> a) -> ListZipper a -> ListZipper a
+mapBefore : (List a -> List a) -> ListZipper a -> ListZipper a
 mapBefore mapFn (ListZipper bfr curr aft) =
     ListZipper
-        (List.map mapFn bfr)
+        (mapFn bfr)
         curr
         aft
 
@@ -122,14 +122,14 @@ mapCurrent mapFn (ListZipper bfr curr aft) =
         aft
 
 
-{-| Maps a function over every element after the element `ListZipper` is focussed on.
+{-| Applies a function to all elements after the element `ListZipper` is focussed on.
 -}
-mapAfter : (a -> a) -> ListZipper a -> ListZipper a
+mapAfter : (List a -> List a) -> ListZipper a -> ListZipper a
 mapAfter mapFn (ListZipper bfr curr aft) =
     ListZipper
         bfr
         curr
-        (List.map mapFn aft)
+        (mapFn aft)
 
 
 
