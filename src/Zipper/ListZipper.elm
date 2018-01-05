@@ -45,15 +45,19 @@ singleton a =
 -}
 fromList : List a -> Maybe (ListZipper a)
 fromList list =
-    case ( List.head list, List.tail list ) of
-        ( Just curr, Just after ) ->
-            Just <| ListZipper [] curr after
+    let
+        head =
+            List.head list
 
-        ( Just curr, Nothing ) ->
-            Just <| ListZipper [] curr []
-
-        _ ->
+        tail =
+            List.tail list |> Maybe.withDefault []
+    in
+    case List.head list of
+        Nothing ->
             Nothing
+
+        Just head ->
+            Just <| ListZipper [] head tail
 
 
 
